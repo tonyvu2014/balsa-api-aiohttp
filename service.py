@@ -31,10 +31,10 @@ def read_all_news_feeds(categories):
         for feed in read_news_feeds(url, categories):
             yield feed
 
-def read_all_news_feeds_async(categories):
-    async def read_news_feed_async(url, categories): 
-        return list(read_news_feeds(url, categories))
+async def read_news_feed_async(url, categories): 
+    return list(read_news_feeds(url, categories))
 
+def read_all_news_feeds_async(categories):
     feed_urls = read_feed_config()
     event_loop = asyncio.get_event_loop()
     tasks = [asyncio.ensure_future(read_news_feed_async(url, categories)) for url in feed_urls]
@@ -42,7 +42,7 @@ def read_all_news_feeds_async(categories):
     event_loop.close()
     return list(chain(*[completed_task.result() for completed_task in completed_tasks]))
 
-def read_all_news_feed_in_parallel(categories):
+def read_all_news_feeds_in_parallel(categories):
     feed_urls = read_feed_config()
     pool_size = multiprocessing.cpu_count() * 2 + 1
     process_pool = multiprocessing.Pool(processes=pool_size)
@@ -64,9 +64,16 @@ if __name__=='__main__':
         pprint(news.title)
 
     start = time.time()
-    all_news = read_all_news_feed_in_parallel(categories)
+    all_news = read_all_news_feeds_in_parallel(categories)
     end = time.time()
     print('Running time in parallel: {}'.format(end-start))
+    for news in all_news:
+        pprint(news.title)
+
+    start = time.time()
+    all_news = read_all_news_feeds_async(categories)
+    end = time.time()
+    print('Running time asynchronously: {}'.format(end-start))
     for news in all_news:
         pprint(news.title)
 

@@ -1,9 +1,8 @@
 from aiohttp import web
 import json
-from service import read_all_news_feed_in_parallel
+from service import read_all_news_feeds
 
-DEFAULT_LIMIT = 50
-
+DATE_TIME_FORMAT='%Y/%m/%d %H:%M:%S'
 
 async def index(request):
     response_obj = { 'status' : 'ok'}
@@ -13,12 +12,12 @@ async def get_feeds(request):
     data = await request.json()
     terms = data.get('terms', [])
     limit = data.get('limit', None)
-    feeds = read_all_news_feed_in_parallel(terms)
+    feeds = list(read_all_news_feeds(terms))
     feeds.sort(key=lambda x: x.published_date, reverse=True)
     results = feeds[:limit] if limit else feeds
     return web.Response(
         status=200, 
-        body=json.dumps([{'title': feed.title, 'link': feed.link, 'published_date': feed.published_date.strftime('%Y/%m/%d %H:%M:%S')} for feed in feeds], indent=4).encode('UTF-8'),
+        body=json.dumps([{'title': feed.title, 'link': feed.link, 'published_date': feed.published_date.strftime(DATE_TIME_FORMAT)} for feed in feeds], indent=4).encode('UTF-8'),
         content_type='application/json'
     )
 
