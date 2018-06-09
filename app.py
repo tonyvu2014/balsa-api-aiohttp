@@ -25,10 +25,12 @@ async def web_app():
     app = web.Application()
     app.router.add_get('/', index)
     app.router.add_post('/api/feeds', get_feeds)
+    app.router.add_post('/refresh', get_feeds)
     return app
 
 if __name__=='__main__':
     app = web.Application()
     app.router.add_get('/', index)
     app.router.add_post('/api/feeds', get_feeds)
+    app.router.add_post('/refresh', get_feeds)
     web.run_app(app)
